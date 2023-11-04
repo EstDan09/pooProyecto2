@@ -2,15 +2,16 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  */
 
-package com.mycompany.pooproyecto2;
+package com.mycompany.rummy;
 
 /**
  *
- * @author Esteban
+ * @author andy2
  */
-public class PooProyecto2 {
+public class Rummy {
 
     public static void main(String[] args) {
-        System.out.println("Hello asd!");
+        Juego ventana = new Juego();
+        ventana.setVisible(true);
     }
 }
