@@ -4,15 +4,33 @@
  */
 package Clientes;
 
+import Juego.DatosMesa;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.ArrayList;
+import javax.swing.JButton;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 
 /**
  *
  * @author Esteban
  */
-public class VentanaCliente extends javax.swing.JFrame {
-    
+public class VentanaCliente extends javax.swing.JFrame implements ActionListener {
+    JButton[][] mesa;
+    Color verdeOscuro = new Color(0, 128, 0);
     Cliente jugador;
+    String[][] mesaInfo;
+    
     /**
      * Creates new form VentanaCliente
      */
@@ -21,11 +39,31 @@ public class VentanaCliente extends javax.swing.JFrame {
             initComponents();
             jugador = new Cliente(this);
             jugador.conexion();
+            mesa = new JButton[4][4];
+            mesaInfo = new String[4][4];
+            pnlTest.setLayout(new GridLayout(4, 4));
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+                    mesa[i][j] = new JButton();
+                    mesa[i][j].setPreferredSize(new Dimension(50, 50));
+                    mesa[i][j].setBackground(verdeOscuro);
+                    mesa[i][j].setActionCommand("Mesa" + i + "" + j); 
+                    mesa[i][j].addActionListener(this);
+                    pnlTest.add(mesa[i][j]); 
+                    
+                    mesaInfo[i][j] = "AA";
+                    
+                }
+            }
+            
         }  catch (IOException ex) {
            
         }
         
     }
+    
+    
+        
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -36,23 +74,49 @@ public class VentanaCliente extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jButton1 = new javax.swing.JButton();
+        btnInit = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
-        jTextField1 = new javax.swing.JTextField();
-        jLabel1 = new javax.swing.JLabel();
+        txaMsgPanel = new javax.swing.JTextArea();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        txaJugadores = new javax.swing.JTextArea();
+        txfMsgText = new javax.swing.JTextField();
+        btnSendMsg = new javax.swing.JButton();
+        pnlTest = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jButton1.setText("jButton1");
+        btnInit.setText("Iniciar");
+        btnInit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnInitActionPerformed(evt);
+            }
+        });
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jScrollPane1.setViewportView(jTextArea1);
+        txaMsgPanel.setColumns(20);
+        txaMsgPanel.setRows(5);
+        jScrollPane1.setViewportView(txaMsgPanel);
 
-        jTextField1.setText("jTextField1");
+        txaJugadores.setColumns(20);
+        txaJugadores.setRows(5);
+        jScrollPane2.setViewportView(txaJugadores);
 
-        jLabel1.setText("waiting");
+        btnSendMsg.setText("Enviar");
+        btnSendMsg.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSendMsgActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout pnlTestLayout = new javax.swing.GroupLayout(pnlTest);
+        pnlTest.setLayout(pnlTestLayout);
+        pnlTestLayout.setHorizontalGroup(
+            pnlTestLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
+        );
+        pnlTestLayout.setVerticalGroup(
+            pnlTestLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -61,38 +125,86 @@ public class VentanaCliente extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(27, 27, 27)
+                        .addComponent(pnlTest, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 283, Short.MAX_VALUE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 0, Short.MAX_VALUE)))
+                        .addComponent(txfMsgText, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton1)
-                        .addGap(26, 26, 26))))
+                        .addComponent(btnSendMsg)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 109, Short.MAX_VALUE)
+                        .addComponent(btnInit)
+                        .addGap(40, 40, 40))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(15, 15, 15)
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 127, Short.MAX_VALUE)
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jButton1)
-                        .addGap(29, 29, 29))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(14, 14, 14))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 183, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 128, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addComponent(pnlTest, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(98, 98, 98)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(txfMsgText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnSendMsg)
+                            .addComponent(btnInit))
+                        .addGap(17, 17, 17))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jScrollPane1)
+                        .addGap(65, 65, 65))))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnInitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInitActionPerformed
+        try {
+            // TODO add your handling code here:
+            jugador.salida.writeInt(3);
+            jugador.salida.writeInt(4);
+            jugador.salida.writeInt(4);
+            
+            for (String[] row: mesaInfo) {
+                for (String code: row) {
+                    jugador.salida.writeUTF(code);
+                }
+            }
+           
+            
+        } catch (IOException ex) {
+           
+        }
+        
+    }//GEN-LAST:event_btnInitActionPerformed
+
+    private void btnSendMsgActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSendMsgActionPerformed
+        try {
+            // se toma lo escrito
+            String mensaje = txfMsgText.getText();
+            // se muestra en el text area
+            //txaMensajes.append(cliente.nomCliente+"> "+ mensaje + "\n");
+            // se limpia el textfield
+            txfMsgText.setText("");
+
+            // envia al server la opcion 4 para que le pase al enemigo
+            // lo escrito
+            jugador.salida.writeInt(2);
+            // le envia el mensaje
+            jugador.salida.writeUTF(jugador.nombreJugador+"> "+ mensaje);
+            
+        } catch (IOException ex) {
+        }
+        
+    }//GEN-LAST:event_btnSendMsgActionPerformed
 
     /**
      * @param args the command line arguments
@@ -129,12 +241,60 @@ public class VentanaCliente extends javax.swing.JFrame {
             }
         });
     }
+    
+    public void actionPerformed(ActionEvent e) {
+      
+        if ( e.getSource() instanceof JButton boton){
+            int[] pos;
+            boton.setBackground(Color.RED);
+            pos = buscaIndice(this.mesa, boton);
+            this.mesaInfo[pos[0]][pos[1]] = "AB";
+        }
+    }
+    
+    public void mostrarJugadores (ArrayList<String> lista) {
+        txaJugadores.setText("");
+        for(String nombre: lista) {
+            txaJugadores.append(nombre+"\n");
+        }
+    }
+    
+    public void mostrarMensajes (String mensaje) {
+        txaMsgPanel.append(mensaje + "\n");
+    }
+    
+    public void actualizaMesa (String[][] mesaActualizada) {
+        for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+                    if (mesaActualizada[i][j].contains("AB")) {
+                        this.mesa[i][j].setBackground(Color.RED);
+                    }
+                    
+                }
+            }
+    }
+    
+    public int[] buscaIndice (JButton[][] mesaParaBuscar, JButton botonBuscado) {
+        for (int row = 0; row < mesaParaBuscar.length; row++) {
+            for (int col = 0; col < mesaParaBuscar.length; col++) {
+                if (mesaParaBuscar[row][col] == botonBuscado) {
+                    return new int[]{row,col};
+                }
+            }
+        }
+        return null;
+    }
+    
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JButton btnInit;
+    private javax.swing.JButton btnSendMsg;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JTextField jTextField1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JPanel pnlTest;
+    private javax.swing.JTextArea txaJugadores;
+    private javax.swing.JTextArea txaMsgPanel;
+    private javax.swing.JTextField txfMsgText;
     // End of variables declaration//GEN-END:variables
 }
