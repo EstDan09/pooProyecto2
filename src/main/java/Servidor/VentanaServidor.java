@@ -64,9 +64,7 @@ public class VentanaServidor extends javax.swing.JFrame {
     public static void main(String args[]) {
         VentanaServidor serv =new VentanaServidor();
         serv.setVisible(true);
-        serv.servidor.runServer();
-        
-            
+        serv.servidor.runServer();      
     }
     
     

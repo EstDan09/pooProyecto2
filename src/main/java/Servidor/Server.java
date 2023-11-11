@@ -17,6 +17,7 @@ public class Server {
     VentanaServidor ventanaServer;
     ArrayList<Socket> jugadoresConectados;
     ArrayList<threadServer> threadsConectados;
+    int contadorJugadores = 1;
     
 
     public Server(VentanaServidor main) {
@@ -37,32 +38,21 @@ public class Server {
             // espera primer cliente
             while (true)
             {
-                jugadoresConectados.add(serv.accept());
-                System.out.println("AAAAA");
+                Socket jugador = serv.accept();
+                jugadoresConectados.add(jugador);
                 ventanaServer.mostrar("Jugador conectado");
                 ventanaServer.mostrar(jugadoresConectados.size() + ": Es el total");
-                threadsConectados.add(new threadServer(jugadoresConectados.get(jugadoresConectados.size() - 1), this, 1));
-                
+                threadServer threadServerJugador = new threadServer (jugador, this, contadorJugadores);
+                threadsConectados.add(threadServerJugador);
+                for (threadServer threadDisp: threadsConectados) {
+                    ArrayList<threadServer> temporal = new ArrayList<>();
+                    for (threadServer threadDispU: threadsConectados) {
+                        temporal.add(threadDispU);
+                    }
+                    threadDisp.refresherToJugadoresEnLinea(temporal);
+                }
+                threadServerJugador.start();            
             }
-           
-            
-            // espera segundo cliente
-            //cliente2 = serv.accept();
-            //ventana.mostrar(".::Segundo Cliente Aceptado");
-            //threadServidor user2 = new threadServidor(cliente2, this,2);
-            //user2.start();
-            
-            // 
-            jugadoresConectados.get(0).contrincante1 = jugadoresConectados.get(1);
-            //user2.enemigo = user1;
-            
-            
-            
-            
-            //while (true)
-            //{
-            
-            //}
             
         } catch (IOException ex) {
             ventanaServer.mostrar("ERROR ... en el servidor");
