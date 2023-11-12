@@ -2,16 +2,20 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package com.mycompany.rummy;
+package Rummy;
 
+import Clientes.Cliente;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import static java.lang.Math.abs;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Random;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -25,14 +29,50 @@ public class Juego extends javax.swing.JFrame implements ActionListener{
     private int columns = 20;
     private ArrayList<Ficha> fichas = new ArrayList<>();
     private ArrayList<ArrayList<Ficha>> listaMazos = new ArrayList<>();
+    String[][] mesaInfo;
+    Cliente clienteJugador;
+    
     Color verdeOscuro = new Color(0, 128, 0);
     boolean turno = true;
+    boolean ActionListenerHabilitado = true;
     String textoAColocar;
     Color colorAColocar; 
+    String codigoAColocar;
+    int puntosDelPrimerTurno = 0; 
+    boolean primerTurnoValido = false; 
+    private ArrayList<Jugada> jugadas = new ArrayList<>();
+    Ficha fichaActual = null;
+    FichaComodin comodin = null;
+    ArrayList<Ficha> mazoJugador;
+    Jugada nuevaJugada = null;
+    //Variables para devolver el valor si el espacio esta ocupado
+    int x = -1;
+    int y = -1;
+    
+    public void actualizarMesaServer(String[][] mesaActualizada){
+        //return mesa;
+    }
+    
+    public void turnosServer(){
+        // recibe un booleano del server si le toca su turno
+    }
+    
+    // Enviar al server la PilaDeFichas Actualizada
+    public ArrayList<Ficha> actualizarPilaDeFichas(){
+        return fichas;
+    } 
+    
+    // Al iniciar el juego, al jugador se le otorgan 14 fichas, esta funcion es para pasar las fichas que ya fueron tomadas de la pila.
+    public ArrayList<Ficha> actualizarFichasDisponibles(){
+        return fichas; 
+    }
     
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() instanceof JButton) {
+        fichaActual = new Ficha(0, " ");
+        comodin = new FichaComodin(":-)", "");
+        mazoJugador = listaMazos.get(0);  
+        if (ActionListenerHabilitado && e.getSource() instanceof JButton) {
             JButton boton = (JButton) e.getSource();
             String actionCommand = boton.getActionCommand(); 
             if(actionCommand != null){
@@ -42,6 +82,69 @@ public class Juego extends javax.swing.JFrame implements ActionListener{
                             if(e.getSource() == fichasJugador[i][j]){
                                 textoAColocar = fichasJugador[i][j].getText();
                                 colorAColocar = fichasJugador[i][j].getForeground();
+                                
+                                
+
+                                String colorString = "";
+                                int numeroFicha = 0; 
+                                if(textoAColocar.equals(":-)")){
+                                    
+                                }
+                                else{
+                                    numeroFicha = Integer.parseInt(textoAColocar); 
+                                    fichaActual.setNumero(numeroFicha);
+                                    codigoAColocar = textoAColocar;
+                                }
+                                
+                                if(colorAColocar.equals(Color.black)){
+                                    colorString = "Negro";
+                                    codigoAColocar += "N";
+                                }
+                                if(colorAColocar.equals(Color.red)){
+                                    colorString = "Rojo";
+                                    codigoAColocar += "R";
+                                }
+                                if(colorAColocar.equals(Color.blue)){
+                                    colorString = "Azul";
+                                    codigoAColocar += "Z";
+                                }
+                                if(colorAColocar.equals(Color.yellow)){
+                                    colorString = "Amarillo";
+                                    codigoAColocar += "A";
+                                }
+                                fichaActual.setColor(colorString);
+                                comodin.setColor(colorString); 
+                                x = i; 
+                                y = j; 
+                                Iterator<Ficha> iteracionMazo = mazoJugador.iterator();
+                                while (iteracionMazo.hasNext()) {
+                                    Ficha ficha = iteracionMazo.next();
+                                    int fichaNum = ficha.getNumero();
+                                    String fichaString = ficha.getColor();
+
+                                    if (fichaNum == numeroFicha && fichaString.equals(colorString)) {
+                                        nuevaJugada = new Jugada(fichaActual,x,y);
+                                        iteracionMazo.remove();
+                                        System.out.println("xd");
+                                        System.out.println(mazoJugador.size());
+                                        System.out.println("xd"); 
+                                    }
+                                }
+                                
+                                fichasJugador[i][j].setBackground(Color.black);  
+                                fichasJugador[i][j].setText(""); 
+                                
+                                if(textoAColocar.equals(":-)")){
+                                    
+                                }
+                                else{
+                                    if(primerTurnoValido == false){
+                                    
+                                    int puntosFicha = Integer.parseInt(textoAColocar);
+                                    puntosDelPrimerTurno += puntosFicha;
+                                    System.out.println(puntosDelPrimerTurno);
+                                    }
+                                } 
                             }
                         }
                     }
@@ -50,29 +153,55 @@ public class Juego extends javax.swing.JFrame implements ActionListener{
                     for (int i = 0; i < rows; i++) {
                         for (int j = 0; j < columns; j++) {
                             if(e.getSource() == mesa[i][j]){
-                                mesa[i][j].setBackground(Color.gray);
-                                mesa[i][j].setForeground(colorAColocar);
-                                mesa[i][j].setText(textoAColocar);
+                                if(mesa[i][j].getText().equals("")){
+                                    mesa[i][j].setBackground(Color.gray);
+                                    mesa[i][j].setForeground(colorAColocar);
+                                    mesa[i][j].setText(textoAColocar);
+                                    mesaInfo[i][j] = "codigoAColocar";
+                                    if (nuevaJugada != null){
+                                        nuevaJugada.setFila(i);
+                                        nuevaJugada.setColumna(j);
+                                        jugadas.add(nuevaJugada); 
+                                        for (Jugada jugada : jugadas) {
+                                            System.out.println("--------------------->");
+                                            System.out.println(jugada);
+                                            System.out.println("---------------------");
+                                        }
+                                        
+                                    }
+                                }
+                                else{
+                                    JOptionPane.showMessageDialog(null, "Espacio Ocupado por otra ficha", "Error", JOptionPane.ERROR_MESSAGE);
+                                    fichasJugador[x][y].setBackground(Color.gray);  
+                                    fichasJugador[x][y].setText(textoAColocar); 
+                                    fichasJugador[x][y].setForeground(colorAColocar);  
+                                }
+                                
                             }
                         }
                     }
                 }
-            }     
+            } 
         }
     }
         
     /**
      * Creates new form Juego
+     *  
      */
     public Juego() {
         initComponents();
+        //jButtonPilaDeFichas.setEnabled(false);  cambiar luego
+        this.clienteJugador = null;
         mesa = new JButton[rows][columns];
+        mesaInfo = new String[rows][columns];
         jPanelMesa.setLayout(new GridLayout(rows, columns));
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
                 mesa[i][j] = new JButton();
                 mesa[i][j].setPreferredSize(new Dimension(50, 50));
                 mesa[i][j].setBackground(verdeOscuro);
+                mesaInfo[i][j] = "AA";
                 mesa[i][j].setActionCommand("Mesa_" + i + "_" + j); 
                 mesa[i][j].addActionListener(this);
                 jPanelMesa.add(mesa[i][j]); 
@@ -101,7 +230,7 @@ public class Juego extends javax.swing.JFrame implements ActionListener{
         fichas.add(new FichaComodin(":-)", "Negro"));
         fichas.add(new FichaComodin(":-)", "Rojo"));
         for (Ficha ficha : fichas) {
-            System.out.println(ficha); 
+//            System.out.println(ficha); 
         }
         
         jugadores.add(1);
@@ -119,18 +248,18 @@ public class Juego extends javax.swing.JFrame implements ActionListener{
                 }
             }
             ArrayList<Ficha> mazo = new ArrayList<>();
-            for(int i = 0; i < 13; i++){
+            for(int i = 0; i <= 13; i++){
                 Random random = new Random();
                 int numeroRandom = random.nextInt(fichas.size());
                 Ficha fichaRandom = fichas.get(numeroRandom);
-                System.out.println(fichaRandom);
+//                System.out.println(fichaRandom);
                 fichas.remove(numeroRandom);
                 mazo.add(fichaRandom);
             }
             listaMazos.add(mazo);
         }
         
-        ArrayList<Ficha> mazoJugador = listaMazos.get(0);
+        mazoJugador = listaMazos.get(0);
         for (int j = 0; j < mazoJugador.size(); j++) {
             Ficha ficha = mazoJugador.get(j);
             JButton boton = fichasJugador[j / 10][j % 10];
@@ -166,7 +295,9 @@ public class Juego extends javax.swing.JFrame implements ActionListener{
         
         
     }
-
+    
+    //public void
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -177,8 +308,9 @@ public class Juego extends javax.swing.JFrame implements ActionListener{
     private void initComponents() {
 
         jPanelMesa = new javax.swing.JPanel();
-        jButtonPilaDeFichas = new javax.swing.JButton();
         jPanelJugador = new javax.swing.JPanel();
+        jButtonPilaDeFichas = new javax.swing.JButton();
+        jButtonValidarJugada = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Rummy");
@@ -192,15 +324,8 @@ public class Juego extends javax.swing.JFrame implements ActionListener{
         );
         jPanelMesaLayout.setVerticalGroup(
             jPanelMesaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 495, Short.MAX_VALUE)
+            .addGap(0, 80, Short.MAX_VALUE)
         );
-
-        jButtonPilaDeFichas.setPreferredSize(new java.awt.Dimension(50, 50));
-        jButtonPilaDeFichas.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonPilaDeFichasActionPerformed(evt);
-            }
-        });
 
         javax.swing.GroupLayout jPanelJugadorLayout = new javax.swing.GroupLayout(jPanelJugador);
         jPanelJugador.setLayout(jPanelJugadorLayout);
@@ -213,6 +338,21 @@ public class Juego extends javax.swing.JFrame implements ActionListener{
             .addGap(0, 186, Short.MAX_VALUE)
         );
 
+        jButtonPilaDeFichas.setPreferredSize(new java.awt.Dimension(50, 50));
+        jButtonPilaDeFichas.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonPilaDeFichasActionPerformed(evt);
+            }
+        });
+
+        jButtonValidarJugada.setFont(new java.awt.Font("Times New Roman", 1, 24)); // NOI18N
+        jButtonValidarJugada.setText("Validar Jugada");
+        jButtonValidarJugada.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonValidarJugadaActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -223,6 +363,7 @@ public class Juego extends javax.swing.JFrame implements ActionListener{
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jButtonPilaDeFichas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButtonValidarJugada, javax.swing.GroupLayout.PREFERRED_SIZE, 234, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jPanelJugador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(164, Short.MAX_VALUE))
         );
@@ -230,13 +371,15 @@ public class Juego extends javax.swing.JFrame implements ActionListener{
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(53, 53, 53)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
+                        .addComponent(jButtonValidarJugada, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jButtonPilaDeFichas, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(229, 229, 229)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 15, Short.MAX_VALUE)
                         .addComponent(jPanelJugador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jPanelMesa, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(273, Short.MAX_VALUE))
+                    .addComponent(jPanelMesa, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(395, Short.MAX_VALUE))
         );
 
         pack();
@@ -244,52 +387,451 @@ public class Juego extends javax.swing.JFrame implements ActionListener{
 
     private void jButtonPilaDeFichasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPilaDeFichasActionPerformed
         // TODO add your handling code here:
-        turno = false;
-        int maximoFichas = 30;
-        ArrayList<Ficha> mazoJugador = listaMazos.get(0);
-        if(mazoJugador.size() >= maximoFichas){
-            System.out.println("Maximo alcanzado");
+        //jButtonValidarJugada.setEnabled(false); //cambiar luego
+        if(mazoJugador.isEmpty()){
+            String mensaje = "¡Has ganado!";
+            String nombre = JOptionPane.showInputDialog(null, mensaje + "\nPor favor, ingresa tu nombre:");
         }
         else{
-            Random random = new Random();
-        int numeroRandom = random.nextInt(fichas.size());
-        Ficha fichaRandom = fichas.get(numeroRandom);
-        System.out.println(fichaRandom);
-        fichas.remove(numeroRandom);
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 10; j++) {
+                    fichasJugador[i][j].setText(""); 
+                    fichasJugador[i][j].setBackground(Color.black); 
+                }
+            }
+            turno = false;
+            int maximoFichas = 30;
+            mazoJugador = listaMazos.get(0);
+            if(mazoJugador.size() >= maximoFichas){
+                System.out.println("Maximo alcanzado");
+                for (int j = 0; j < mazoJugador.size(); j++) {
+                    Ficha ficha = mazoJugador.get(j);
+                    JButton boton = fichasJugador[j / 10][j % 10];
+                    int numero = ficha.getNumero();
+                    String colorString = ficha.getColor();
+                    Color color = Color.black;
+                    String texto = " ";
 
-        mazoJugador.add(fichaRandom);
-        for (int j = 0; j < mazoJugador.size(); j++) {
-            Ficha ficha = mazoJugador.get(j);
-            JButton boton = fichasJugador[j / 10][j % 10];
-            int numero = ficha.getNumero();
-            String colorString = ficha.getColor();
+                    if(colorString.equals("Negro")){
+                            color = Color.black;
+                        }
+                    if(colorString.equals("Rojo")){
+                            color = Color.red;
+                        }
+                    if(colorString.equals("Azul")){
+                            color = Color.blue;
+                        }
+                    if(colorString.equals("Amarillo")){
+                            color = Color.yellow;
+                        }
+                    texto = String.valueOf(numero);
+                    if(numero == 0){
+                        FichaComodin fichaComodin = (FichaComodin)ficha;
+                        texto = fichaComodin.getSimbolo();
+                    }
+
+                    boton.setForeground(color);
+                    boton.setText(texto); 
+                    boton.setBackground(Color.gray);
+                    }
+            }
+            else{
+                Random random = new Random();
+                int numeroRandom = random.nextInt(fichas.size());
+                Ficha fichaRandom = fichas.get(numeroRandom);
+        //        System.out.println(fichaRandom);
+                fichas.remove(numeroRandom);
+
+                mazoJugador.add(fichaRandom);
+                for (int j = 0; j < mazoJugador.size(); j++) {
+                    Ficha ficha = mazoJugador.get(j);
+                    JButton boton = fichasJugador[j / 10][j % 10];
+                    int numero = ficha.getNumero();
+                    String colorString = ficha.getColor();
+                    Color color = Color.black;
+                    String texto = " ";
+
+                    if(colorString.equals("Negro")){
+                            color = Color.black;
+                        }
+                    if(colorString.equals("Rojo")){
+                            color = Color.red;
+                        }
+                    if(colorString.equals("Azul")){
+                            color = Color.blue;
+                        }
+                    if(colorString.equals("Amarillo")){
+                            color = Color.yellow;
+                        }
+                    texto = String.valueOf(numero);
+                    if(numero == 0){
+                        FichaComodin fichaComodin = (FichaComodin)ficha;
+                        texto = fichaComodin.getSimbolo();
+                    }
+
+                    boton.setForeground(color);
+                    boton.setText(texto); 
+                    boton.setBackground(Color.gray);
+                    }
+            }   
+    //        if(turno == false){
+    //            jButtonPilaDeFichas.setEnabled(false);
+    //            ActionListenerHabilitado = false;
+    //        } cambiar luego
+        }
+    }//GEN-LAST:event_jButtonPilaDeFichasActionPerformed
+
+    private void jButtonValidarJugadaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonValidarJugadaActionPerformed
+        //jButtonPilaDeFichas.setEnabled(true); cambiar luego
+        if(jugadas.size() == 1){
+            Jugada jugadaColocada = jugadas.get(0);
+            Ficha fichaColocada = jugadaColocada.getFicha();
+            int numFichaColocada = fichaColocada.getNumero();
+            String colorFichaColocada = fichaColocada.getColor();
             Color color = Color.black;
-            String texto = " ";
-
-            if(colorString.equals("Negro")){
+            if(colorFichaColocada.equals("Negro")){
                     color = Color.black;
                 }
-            if(colorString.equals("Rojo")){
+            if(colorFichaColocada.equals("Rojo")){
                     color = Color.red;
                 }
-            if(colorString.equals("Azul")){
+            if(colorFichaColocada.equals("Azul")){
                     color = Color.blue;
                 }
-            if(colorString.equals("Amarillo")){
+            if(colorFichaColocada.equals("Amarillo")){
                     color = Color.yellow;
                 }
-            texto = String.valueOf(numero);
-            if(numero == 0){
-                FichaComodin fichaComodin = (FichaComodin)ficha;
-                texto = fichaComodin.getSimbolo();
+            int filaFichaColocada = jugadaColocada.getFila();
+            int columnaFichaColocada = jugadaColocada.getColumna();
+            int yFichaColocada = jugadaColocada.getFichasJugadorY();
+            int xFichaColocada = jugadaColocada.getFichasJugadorX();
+            
+            //----------------------------------------------------------------//
+            //Limites
+            if(columnaFichaColocada + 1 > 19 
+                && mesa[filaFichaColocada][columnaFichaColocada - 1].getText().equals("")){
+                System.out.println("Centro: " + mesa[filaFichaColocada][columnaFichaColocada].getText());
+                JOptionPane.showMessageDialog(null, "Jugada invalida", "Error", JOptionPane.ERROR_MESSAGE);
+                System.out.println("Error,1:1");
+                fichasJugador[xFichaColocada][yFichaColocada].setText(Integer.toString(numFichaColocada));
+                fichasJugador[xFichaColocada][yFichaColocada].setForeground(color);
+                fichasJugador[xFichaColocada][yFichaColocada].setBackground(Color.gray); 
+                mesa[filaFichaColocada][columnaFichaColocada].setText("");
+                mesa[filaFichaColocada][columnaFichaColocada].setBackground(verdeOscuro); 
+                mazoJugador.add(fichaColocada);
+                System.out.println(mazoJugador.size());
             }
+            else if(columnaFichaColocada - 1 < 0 &&
+                mesa[filaFichaColocada][columnaFichaColocada + 1].getText().equals("")){
+                System.out.println("Centro: " + mesa[filaFichaColocada][columnaFichaColocada].getText());
+                JOptionPane.showMessageDialog(null, "Jugada invalida", "Error", JOptionPane.ERROR_MESSAGE);
+                System.out.println("Error,1:2");
+                fichasJugador[xFichaColocada][yFichaColocada].setText(Integer.toString(numFichaColocada));
+                fichasJugador[xFichaColocada][yFichaColocada].setForeground(color);
+                fichasJugador[xFichaColocada][yFichaColocada].setBackground(Color.gray); 
+                mesa[filaFichaColocada][columnaFichaColocada].setText("");
+                mesa[filaFichaColocada][columnaFichaColocada].setBackground(verdeOscuro); 
+                mazoJugador.add(fichaColocada);
+                System.out.println(mazoJugador.size());
+            }
+            //----------------------------------------------------------------//
+            else if(columnaFichaColocada + 1 <= 19 && columnaFichaColocada - 1 >= 0 && 
+                mesa[filaFichaColocada][columnaFichaColocada - 1].getText().equals("")&&
+                mesa[filaFichaColocada][columnaFichaColocada + 1].getText().equals("")){
+                System.out.println("izquierda: " + mesa[filaFichaColocada ][columnaFichaColocada- 1].getText());
+                System.out.println("Centro: " + mesa[filaFichaColocada][columnaFichaColocada].getText());
+                System.out.println("Derecha: " + mesa[filaFichaColocada ][columnaFichaColocada+ 1].getText());
+                JOptionPane.showMessageDialog(null, "Jugada invalida", "Error", JOptionPane.ERROR_MESSAGE);
+                System.out.println("Error,1:3");
+                fichasJugador[xFichaColocada][yFichaColocada].setText(Integer.toString(numFichaColocada));
+                fichasJugador[xFichaColocada][yFichaColocada].setForeground(color);
+                fichasJugador[xFichaColocada][yFichaColocada].setBackground(Color.gray); 
+                mesa[filaFichaColocada][columnaFichaColocada].setText("");
+                mesa[filaFichaColocada][columnaFichaColocada].setBackground(verdeOscuro); 
+                mazoJugador.add(fichaColocada);
+                System.out.println(mazoJugador.size());
+            }
+            else if(columnaFichaColocada - 1 > 0 && mesa[filaFichaColocada][columnaFichaColocada - 1].getText().equals(":-)") 
+                    || (columnaFichaColocada - 1 > 0 && mesa[filaFichaColocada][columnaFichaColocada - 1].getText().equals(Integer.toString(numFichaColocada - 1)) 
+                    && mesa[filaFichaColocada][columnaFichaColocada - 1].getForeground().equals(color)) ){
+                
+            } 
+            else if(columnaFichaColocada + 1 < 20 && mesa[filaFichaColocada][columnaFichaColocada + 1].getText().equals(":-)") 
+                    || (columnaFichaColocada + 1 < 20 && mesa[filaFichaColocada][columnaFichaColocada + 1].getText().equals(Integer.toString(numFichaColocada + 1)) 
+                    && mesa[filaFichaColocada][columnaFichaColocada + 1].getForeground().equals(color)) ){
+                
+            }
+            else if(mesa[filaFichaColocada][columnaFichaColocada - 1].getText().equals(Integer.toString(numFichaColocada)) 
+                    && mesa[filaFichaColocada][columnaFichaColocada - 2].getText().equals(Integer.toString(numFichaColocada))
+                    && mesa[filaFichaColocada][columnaFichaColocada - 3].getText().equals(Integer.toString(numFichaColocada))
+                    && !mesa[filaFichaColocada][columnaFichaColocada - 1].getForeground().equals(color)
+                    && !mesa[filaFichaColocada][columnaFichaColocada - 2].getForeground().equals(color)
+                    && !mesa[filaFichaColocada][columnaFichaColocada - 3].getForeground().equals(color)){
+                
+            }
+            else{
+                JOptionPane.showMessageDialog(null, "Jugada invalida", "Error", JOptionPane.ERROR_MESSAGE);
+                System.out.println("Error,1:4");
+                fichasJugador[xFichaColocada][yFichaColocada].setText(Integer.toString(numFichaColocada));
+                fichasJugador[xFichaColocada][yFichaColocada].setForeground(color);
+                fichasJugador[xFichaColocada][yFichaColocada].setBackground(Color.gray); 
+                mesa[filaFichaColocada][columnaFichaColocada].setText("");
+                mesa[filaFichaColocada][columnaFichaColocada].setBackground(verdeOscuro); 
+                mazoJugador.add(fichaColocada);
+                System.out.println(mazoJugador.size());
+            }
+        }
+        if(jugadas.size() == 2){
+            JOptionPane.showMessageDialog(null, "Jugada invalida", "Error", JOptionPane.ERROR_MESSAGE);
+            for (Jugada jugada : jugadas) {
+                Ficha fichaColocada = jugada.getFicha();
+                int numFichaColocada = fichaColocada.getNumero();
+                String colorFichaColocada = fichaColocada.getColor();
+                Color color = Color.black;
+                if(colorFichaColocada.equals("Negro")){
+                        color = Color.black;
+                    }
+                if(colorFichaColocada.equals("Rojo")){
+                        color = Color.red;
+                    }
+                if(colorFichaColocada.equals("Azul")){
+                        color = Color.blue;
+                    }
+                if(colorFichaColocada.equals("Amarillo")){
+                        color = Color.yellow;
+                    }
+                int filaFichaColocada = jugada.getFila();
+                int columnaFichaColocada = jugada.getColumna();
+                int yFichaColocada = jugada.getFichasJugadorY();
+                int xFichaColocada = jugada.getFichasJugadorX();
+                
+                fichasJugador[xFichaColocada][yFichaColocada].setText(Integer.toString(numFichaColocada));
+                fichasJugador[xFichaColocada][yFichaColocada].setForeground(color);
+                fichasJugador[xFichaColocada][yFichaColocada].setBackground(Color.gray); 
+                mesa[filaFichaColocada][columnaFichaColocada].setText("");
+                mesa[filaFichaColocada][columnaFichaColocada].setBackground(verdeOscuro); 
+                mazoJugador.add(fichaColocada); 
+            }
+        }
+        if(jugadas.size() == 3){
+            Jugada jugada1 = jugadas.get(0);
+            int filaFichaColocada1 = jugada1.getFila();
+            int columnaFichaColocada1 = jugada1.getColumna();
+            Ficha fichaColocada1 = jugada1.getFicha();
+            int numFichaColocada1 = fichaColocada1.getNumero();
+            String colorFichaColocada = fichaColocada1.getColor();
+            Color color1 = Color.black;
+            int yFichaColocada1 = jugada1.getFichasJugadorY();
+            int xFichaColocada1 = jugada1.getFichasJugadorX();
+            if(colorFichaColocada.equals("Negro")){
+                    color1 = Color.black;
+                }
+            if(colorFichaColocada.equals("Rojo")){
+                    color1 = Color.red;
+                }
+            if(colorFichaColocada.equals("Azul")){
+                    color1 = Color.blue;
+                }
+            if(colorFichaColocada.equals("Amarillo")){
+                    color1 = Color.yellow;
+                }
+            
+            Jugada jugada2 = jugadas.get(1);
+            int filaFichaColocada2 = jugada2.getFila();
+            int columnaFichaColocada2 = jugada2.getColumna();
+            Ficha fichaColocada2 = jugada2.getFicha();
+            int numFichaColocada2 = fichaColocada2.getNumero();
+            String colorFichaColocada2 = fichaColocada2.getColor();
+            Color color2 = Color.black;
+            int yFichaColocada2 = jugada2.getFichasJugadorY();
+            int xFichaColocada2 = jugada2.getFichasJugadorX();
+            if(colorFichaColocada2.equals("Negro")){
+                    color2 = Color.black;
+                }
+            if(colorFichaColocada2.equals("Rojo")){
+                    color2 = Color.red;
+                }
+            if(colorFichaColocada2.equals("Azul")){
+                    color2 = Color.blue;
+                }
+            if(colorFichaColocada2.equals("Amarillo")){
+                    color2 = Color.yellow;
+                }
+            
+            Jugada jugada3 = jugadas.get(2);
+            int filaFichaColocada3 = jugada3.getFila();
+            int columnaFichaColocada3 = jugada3.getColumna();
+            Ficha fichaColocada3 = jugada3.getFicha();
+            int numFichaColocada3 = fichaColocada3.getNumero();
+            String colorFichaColocada3 = fichaColocada3.getColor();
+            Color color3 = Color.black;
+            int yFichaColocada3 = jugada3.getFichasJugadorY();
+            int xFichaColocada3 = jugada3.getFichasJugadorX();
+            if(colorFichaColocada3.equals("Negro")){
+                    color3 = Color.black;
+                }
+            if(colorFichaColocada3.equals("Rojo")){
+                    color3 = Color.red;
+                }
+            if(colorFichaColocada3.equals("Azul")){
+                    color3 = Color.blue;
+                }
+            if(colorFichaColocada3.equals("Amarillo")){
+                    color3 = Color.yellow;
+                }
+            
+            if(filaFichaColocada1 != filaFichaColocada2 || filaFichaColocada1 != filaFichaColocada3 
+                || filaFichaColocada2 != filaFichaColocada3){
+                JOptionPane.showMessageDialog(null, "Jugada invalida", "Error", JOptionPane.ERROR_MESSAGE); 
+                System.out.println("Error,3:1");
+                fichasJugador[xFichaColocada1][yFichaColocada1].setText(Integer.toString(numFichaColocada1));
+                fichasJugador[xFichaColocada1][yFichaColocada1].setForeground(color1);
+                fichasJugador[xFichaColocada1][yFichaColocada1].setBackground(Color.gray); 
+                mesa[filaFichaColocada1][columnaFichaColocada1].setText("");
+                mesa[filaFichaColocada1][columnaFichaColocada1].setBackground(verdeOscuro); 
+                mazoJugador.add(fichaColocada1); 
+                fichasJugador[xFichaColocada2][yFichaColocada2].setText(Integer.toString(numFichaColocada2));
+                fichasJugador[xFichaColocada2][yFichaColocada2].setForeground(color2);
+                fichasJugador[xFichaColocada2][yFichaColocada2].setBackground(Color.gray); 
+                mesa[filaFichaColocada2][columnaFichaColocada2].setText("");
+                mesa[filaFichaColocada2][columnaFichaColocada2].setBackground(verdeOscuro); 
+                mazoJugador.add(fichaColocada2); 
+                fichasJugador[xFichaColocada3][yFichaColocada3].setText(Integer.toString(numFichaColocada3));
+                fichasJugador[xFichaColocada3][yFichaColocada3].setForeground(color3);
+                fichasJugador[xFichaColocada3][yFichaColocada3].setBackground(Color.gray); 
+                mesa[filaFichaColocada3][columnaFichaColocada3].setText("");
+                mesa[filaFichaColocada3][columnaFichaColocada3].setBackground(verdeOscuro); 
+                mazoJugador.add(fichaColocada3); 
+            }
+            else if(abs(columnaFichaColocada1 - columnaFichaColocada2) != 1 || abs(columnaFichaColocada2 - columnaFichaColocada3) != 1){
+                JOptionPane.showMessageDialog(null, "Jugada invalida", "Error", JOptionPane.ERROR_MESSAGE);  
+                System.out.println("Error,3:2");
+                fichasJugador[xFichaColocada1][yFichaColocada1].setText(Integer.toString(numFichaColocada1));
+                fichasJugador[xFichaColocada1][yFichaColocada1].setForeground(color1);
+                fichasJugador[xFichaColocada1][yFichaColocada1].setBackground(Color.gray); 
+                mesa[filaFichaColocada1][columnaFichaColocada1].setText("");
+                mesa[filaFichaColocada1][columnaFichaColocada1].setBackground(verdeOscuro); 
+                mazoJugador.add(fichaColocada1); 
+                fichasJugador[xFichaColocada2][yFichaColocada2].setText(Integer.toString(numFichaColocada2));
+                fichasJugador[xFichaColocada2][yFichaColocada2].setForeground(color2);
+                fichasJugador[xFichaColocada2][yFichaColocada2].setBackground(Color.gray); 
+                mesa[filaFichaColocada2][columnaFichaColocada2].setText("");
+                mesa[filaFichaColocada2][columnaFichaColocada2].setBackground(verdeOscuro); 
+                mazoJugador.add(fichaColocada2); 
+                fichasJugador[xFichaColocada3][yFichaColocada3].setText(Integer.toString(numFichaColocada3));
+                fichasJugador[xFichaColocada3][yFichaColocada3].setForeground(color3);
+                fichasJugador[xFichaColocada3][yFichaColocada3].setBackground(Color.gray); 
+                mesa[filaFichaColocada3][columnaFichaColocada3].setText("");
+                mesa[filaFichaColocada3][columnaFichaColocada3].setBackground(verdeOscuro); 
+                mazoJugador.add(fichaColocada3); 
+            }
+            else if(numFichaColocada1 + 1 == numFichaColocada2 && numFichaColocada2 + 1 == numFichaColocada3 && colorFichaColocada.equals(colorFichaColocada2)
+            && colorFichaColocada2.equals(colorFichaColocada3) && colorFichaColocada.equals(colorFichaColocada3)){
+                
+            }
+            else if(numFichaColocada1 == numFichaColocada2 && numFichaColocada2 == numFichaColocada3 && !colorFichaColocada.equals(colorFichaColocada2) &&
+                !colorFichaColocada2.equals(colorFichaColocada3) &&
+                !colorFichaColocada.equals(colorFichaColocada3)){
+                System.out.println("Num iguales, colores diferentes");
+            }
+            else{
+                JOptionPane.showMessageDialog(null, "Jugada invalida", "Error", JOptionPane.ERROR_MESSAGE);  
+                System.out.println("Error,3:3");
+                fichasJugador[xFichaColocada1][yFichaColocada1].setText(Integer.toString(numFichaColocada1));
+                fichasJugador[xFichaColocada1][yFichaColocada1].setForeground(color1);
+                fichasJugador[xFichaColocada1][yFichaColocada1].setBackground(Color.gray); 
+                mesa[filaFichaColocada1][columnaFichaColocada1].setText("");
+                mesa[filaFichaColocada1][columnaFichaColocada1].setBackground(verdeOscuro); 
+                mazoJugador.add(fichaColocada1); 
+                fichasJugador[xFichaColocada2][yFichaColocada2].setText(Integer.toString(numFichaColocada2));
+                fichasJugador[xFichaColocada2][yFichaColocada2].setForeground(color2);
+                fichasJugador[xFichaColocada2][yFichaColocada2].setBackground(Color.gray); 
+                mesa[filaFichaColocada2][columnaFichaColocada2].setText("");
+                mesa[filaFichaColocada2][columnaFichaColocada2].setBackground(verdeOscuro); 
+                mazoJugador.add(fichaColocada2); 
+                fichasJugador[xFichaColocada3][yFichaColocada3].setText(Integer.toString(numFichaColocada3));
+                fichasJugador[xFichaColocada3][yFichaColocada3].setForeground(color3);
+                fichasJugador[xFichaColocada3][yFichaColocada3].setBackground(Color.gray); 
+                mesa[filaFichaColocada3][columnaFichaColocada3].setText("");
+                mesa[filaFichaColocada3][columnaFichaColocada3].setBackground(verdeOscuro); 
+                mazoJugador.add(fichaColocada3); 
+            }
+        }
+        
+        if(jugadas.size() > 3){
+            JOptionPane.showMessageDialog(null, "Jugada invalida", "Error", JOptionPane.ERROR_MESSAGE); 
+            for (Jugada jugada : jugadas) {
+                Ficha fichaColocada = jugada.getFicha();
+                int numFichaColocada = fichaColocada.getNumero();
+                String colorFichaColocada = fichaColocada.getColor();
+                Color color = Color.black;
+                if(colorFichaColocada.equals("Negro")){
+                        color = Color.black;
+                    }
+                if(colorFichaColocada.equals("Rojo")){
+                        color = Color.red;
+                    }
+                if(colorFichaColocada.equals("Azul")){
+                        color = Color.blue;
+                    }
+                if(colorFichaColocada.equals("Amarillo")){
+                        color = Color.yellow;
+                    }
+                int filaFichaColocada = jugada.getFila();
+                int columnaFichaColocada = jugada.getColumna();
+                int yFichaColocada = jugada.getFichasJugadorY();
+                int xFichaColocada = jugada.getFichasJugadorX();
+                fichasJugador[xFichaColocada][yFichaColocada].setText(Integer.toString(numFichaColocada));
+                fichasJugador[xFichaColocada][yFichaColocada].setForeground(color);
+                fichasJugador[xFichaColocada][yFichaColocada].setBackground(Color.gray); 
+                mesa[filaFichaColocada][columnaFichaColocada].setText("");
+                mesa[filaFichaColocada][columnaFichaColocada].setBackground(verdeOscuro); 
+                mazoJugador.add(fichaColocada); 
+            }
+        }
+        
+        if(puntosDelPrimerTurno >= 30){
+            primerTurnoValido = true;
+        }
+        else{
+            JOptionPane.showMessageDialog(null, "Jugada invalida", "Error", JOptionPane.ERROR_MESSAGE); 
+            for (Jugada jugada : jugadas) {
+                Ficha fichaColocada = jugada.getFicha();
+                int numFichaColocada = fichaColocada.getNumero();
+                String colorFichaColocada = fichaColocada.getColor();
+                Color color = Color.black;
+                if(colorFichaColocada.equals("Negro")){
+                        color = Color.black;
+                    }
+                if(colorFichaColocada.equals("Rojo")){
+                        color = Color.red;
+                    }
+                if(colorFichaColocada.equals("Azul")){
+                        color = Color.blue;
+                    }
+                if(colorFichaColocada.equals("Amarillo")){
+                        color = Color.yellow;
+                    }
+                int filaFichaColocada = jugada.getFila();
+                int columnaFichaColocada = jugada.getColumna();
+                int yFichaColocada = jugada.getFichasJugadorY();
+                int xFichaColocada = jugada.getFichasJugadorX();
+                fichasJugador[xFichaColocada][yFichaColocada].setText(Integer.toString(numFichaColocada));
+                fichasJugador[xFichaColocada][yFichaColocada].setForeground(color);
+                fichasJugador[xFichaColocada][yFichaColocada].setBackground(Color.gray); 
+                mesa[filaFichaColocada][columnaFichaColocada].setText("");
+                mesa[filaFichaColocada][columnaFichaColocada].setBackground(verdeOscuro); 
+                mazoJugador.add(fichaColocada); 
+            }
+            puntosDelPrimerTurno = 0;
+            System.out.println("Error, puntos del primer turno deben ser mayor a 30");
+        }
 
-            boton.setForeground(color);
-            boton.setText(texto); 
-            boton.setBackground(Color.gray);
-            }
-        }     
-    }//GEN-LAST:event_jButtonPilaDeFichasActionPerformed
+        
+        System.out.println(jugadas.size()); 
+        jugadas.clear();
+        System.out.println(jugadas.size()); 
+    }//GEN-LAST:event_jButtonValidarJugadaActionPerformed
     
     /**
      * @param args the command line arguments
@@ -331,6 +873,7 @@ public class Juego extends javax.swing.JFrame implements ActionListener{
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonPilaDeFichas;
+    private javax.swing.JButton jButtonValidarJugada;
     private javax.swing.JPanel jPanelJugador;
     private javax.swing.JPanel jPanelMesa;
     // End of variables declaration//GEN-END:variables
