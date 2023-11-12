@@ -5,6 +5,7 @@
 package Clientes;
 
 import Juego.DatosMesa;
+import Rummy.Juego;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -82,6 +83,7 @@ public class VentanaCliente extends javax.swing.JFrame implements ActionListener
         txfMsgText = new javax.swing.JTextField();
         btnSendMsg = new javax.swing.JButton();
         pnlTest = new javax.swing.JPanel();
+        btnJuego = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -118,6 +120,13 @@ public class VentanaCliente extends javax.swing.JFrame implements ActionListener
             .addGap(0, 100, Short.MAX_VALUE)
         );
 
+        btnJuego.setText("juego");
+        btnJuego.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnJuegoActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -127,10 +136,16 @@ public class VentanaCliente extends javax.swing.JFrame implements ActionListener
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(27, 27, 27)
-                        .addComponent(pnlTest, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(27, 27, 27)
+                                .addComponent(pnlTest, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(191, 191, 191)
+                                .addComponent(btnJuego)
+                                .addContainerGap())))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(txfMsgText, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -148,7 +163,9 @@ public class VentanaCliente extends javax.swing.JFrame implements ActionListener
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 183, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 128, Short.MAX_VALUE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 89, Short.MAX_VALUE)
+                                .addComponent(btnJuego)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                 .addGap(0, 0, Short.MAX_VALUE)
                                 .addComponent(pnlTest, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -205,6 +222,12 @@ public class VentanaCliente extends javax.swing.JFrame implements ActionListener
         }
         
     }//GEN-LAST:event_btnSendMsgActionPerformed
+
+    private void btnJuegoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnJuegoActionPerformed
+        // TODO add your handling code here:
+        Juego ventanaJuego = new Juego();
+        ventanaJuego.setVisible(true);
+    }//GEN-LAST:event_btnJuegoActionPerformed
 
     /**
      * @param args the command line arguments
@@ -265,13 +288,16 @@ public class VentanaCliente extends javax.swing.JFrame implements ActionListener
     
     public void actualizaMesa (String[][] mesaActualizada) {
         for (int i = 0; i < 4; i++) {
-                for (int j = 0; j < 4; j++) {
-                    if (mesaActualizada[i][j].contains("AB")) {
-                        this.mesa[i][j].setBackground(Color.RED);
-                    }
-                    
+            for (int j = 0; j < 4; j++) {
+                if (mesaActualizada[i][j].contains("AB")) {
+                    this.mesa[i][j].setBackground(Color.RED);
                 }
+                if (mesaActualizada[i][j].contains("AC")) {
+                    this.mesa[i][j].setBackground(Color.RED);
+                }
+
             }
+        }
     }
     
     public int[] buscaIndice (JButton[][] mesaParaBuscar, JButton botonBuscado) {
@@ -289,6 +315,7 @@ public class VentanaCliente extends javax.swing.JFrame implements ActionListener
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnInit;
+    private javax.swing.JButton btnJuego;
     private javax.swing.JButton btnSendMsg;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
