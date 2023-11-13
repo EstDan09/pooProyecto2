@@ -36,7 +36,7 @@ public class Juego extends javax.swing.JFrame implements ActionListener {
     private ArrayList<String> fichasInfo = new ArrayList<>();
     private ArrayList<ArrayList<Ficha>> listaMazos = new ArrayList<>();
     String[][] mesaInfo;
-    Cliente cliente;
+    Cliente cliente = null;
     Partida partida;
 
     Color verdeOscuro = new Color(0, 128, 0);
@@ -62,33 +62,38 @@ public class Juego extends javax.swing.JFrame implements ActionListener {
                 if (mesaActualizada[i][j].contains("VV")) {
                     this.mesa[i][j].setBackground(verdeOscuro);
                     this.mesa[i][j].setText("");
-                } else if (mesaActualizada[i][j].contains("R")) {
-                    this.mesa[i][j].setForeground(Color.red);
-                    this.mesa[i][j].setBackground(Color.gray);
-                } else if (mesaActualizada[i][j].contains("N")) {
-                    this.mesa[i][j].setForeground(Color.black);
-                    this.mesa[i][j].setBackground(Color.gray);
-                } else if (mesaActualizada[i][j].contains("Z")) {
-                    this.mesa[i][j].setForeground(Color.blue);
-                    this.mesa[i][j].setBackground(Color.gray);
-                } else if (mesaActualizada[i][j].contains("A")) {
-                    this.mesa[i][j].setForeground(Color.yellow);
-                    this.mesa[i][j].setBackground(Color.gray);
-                }
-
-                if (mesaActualizada[i][j].contains("C")) {
-                    this.mesa[i][j].setText(":-)");
                 } else {
-                    if (mesaActualizada[i][j].length() == 2) {
-                        String texto = mesaActualizada[i][j].substring(0, 1);
-                        this.mesa[i][j].setText(texto);
+                    if (mesaActualizada[i][j].contains("R")) {
+                        this.mesa[i][j].setForeground(Color.red);
+                        this.mesa[i][j].setBackground(Color.gray);
+                    } else if (mesaActualizada[i][j].contains("N")) {
+                        this.mesa[i][j].setForeground(Color.black);
+                        this.mesa[i][j].setBackground(Color.gray);
+                    } else if (mesaActualizada[i][j].contains("Z")) {
+                        this.mesa[i][j].setForeground(Color.blue);
+                        this.mesa[i][j].setBackground(Color.gray);
+                    } else if (mesaActualizada[i][j].contains("A")) {
+                        this.mesa[i][j].setForeground(Color.yellow);
+                        this.mesa[i][j].setBackground(Color.gray);
+                    }
+
+                    if (mesaActualizada[i][j].contains("C")) {
+                        this.mesa[i][j].setText(":-)");
                     } else {
-                        String texto = mesaActualizada[i][j].substring(0, 2);
-                        this.mesa[i][j].setText(texto);
+                        if (mesaActualizada[i][j].length() == 2) {
+                            String texto = mesaActualizada[i][j].substring(0, 1);
+                            this.mesa[i][j].setText(texto);
+                        } else {
+                            String texto = mesaActualizada[i][j].substring(0, 2);
+                            this.mesa[i][j].setText(texto);
+                        }
                     }
                 }
+
             }
         }
+        
+        mesaInfo = mesaActualizada;
     }
 
     // Enviar al server la PilaDeFichas Actualizada
@@ -115,7 +120,7 @@ public class Juego extends javax.swing.JFrame implements ActionListener {
                 } else {
                     colorLetra = ficha.getColor().substring(0, 1);
                 }
-                if (ficha.getNumero() == numero && colorLetra.equals(color)) {
+                if (!(ficha.getNumero() == numero) && !(colorLetra.equals(color))) {
                     fichasAEliminar.add(ficha);
                     break;
                 }
@@ -246,12 +251,15 @@ public class Juego extends javax.swing.JFrame implements ActionListener {
 
     /**
      * Creates new form Juego
+     *
+     * @param cliente
      */
-    public Juego() {
+    public Juego(Cliente cliente) {
         initComponents();
         //jButtonPilaDeFichas.setEnabled(false);  cambiar luego
         mesa = new JButton[rows][columns];
         mesaInfo = new String[rows][columns];
+        this.cliente = cliente;
         jPanelMesa.setLayout(new GridLayout(rows, columns));
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
@@ -338,6 +346,19 @@ public class Juego extends javax.swing.JFrame implements ActionListener {
                 mazo.add(fichaRandom);
             }
             listaMazos.add(mazo);
+
+            try {
+                cliente.salida.writeInt(1);
+                cliente.salida.writeInt(fichasInfo.size());
+
+                for (String ficha : fichasInfo) {
+                    cliente.salida.writeUTF(ficha);
+                }
+
+            } catch (IOException ex) {
+                Logger.getLogger(Juego.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
         }
 
         mazoJugador = listaMazos.get(0);
@@ -539,6 +560,17 @@ public class Juego extends javax.swing.JFrame implements ActionListener {
                 }
 
                 fichas.remove(numeroRandom);
+                try {
+                    cliente.salida.writeInt(1);
+                    cliente.salida.writeInt(fichasInfo.size());
+
+                    for (String ficha : fichasInfo) {
+                        cliente.salida.writeUTF(ficha);
+                    }
+
+                } catch (IOException ex) {
+                    Logger.getLogger(Juego.class.getName()).log(Level.SEVERE, null, ex);
+                }
 
                 mazoJugador.add(fichaRandom);
                 for (int j = 0; j < mazoJugador.size(); j++) {
@@ -1111,37 +1143,6 @@ public class Juego extends javax.swing.JFrame implements ActionListener {
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Juego.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Juego.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Juego.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Juego.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new Juego().setVisible(true);
-            }
-        });
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonPilaDeFichas;

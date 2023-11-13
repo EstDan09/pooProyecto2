@@ -79,8 +79,4 @@ public class Cliente {
     OutputStream getOutputStream() throws IOException {
         return cliente.getOutputStream();
     }
-   
-   
-   
-   
 }

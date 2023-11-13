@@ -193,17 +193,12 @@ public class VentanaCliente extends javax.swing.JFrame implements ActionListener
 
     private void btnInitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInitActionPerformed
         
-            
-            // TODO add your handling code here:
-            //jugador.salida.writeInt(3);
-            //jugador.salida.writeInt(4);
-            //jugador.salida.writeInt(4);
-            
-            //for (String[] row: mesaInfo) {
-                //for (String code: row) {
-                    //jugador.salida.writeUTF(code);
-                //}
-            //}
+        try {
+            jugador.salida.writeInt(9);
+           
+        } catch (IOException ex) {
+            Logger.getLogger(VentanaCliente.class.getName()).log(Level.SEVERE, null, ex);
+        }
            
             
         
@@ -232,7 +227,7 @@ public class VentanaCliente extends javax.swing.JFrame implements ActionListener
 
     private void btnJuegoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnJuegoActionPerformed
         // TODO add your handling code here:
-        this.ventanaJuego = new Juego();
+        this.ventanaJuego = new Juego(this.jugador);
         ventanaJuego.setVisible(true);
         ventanaJuego.setCliente(this.jugador);
         ventanaJuego.setTitle(jugador.getNombreJugador());
@@ -317,17 +312,14 @@ public class VentanaCliente extends javax.swing.JFrame implements ActionListener
     
     public void actualizaMesa (String[][] mesaActualizada) {
         ventanaJuego.actualizarMesaServer(mesaActualizada);
-//        for (int i = 0; i < 4; i++) {
-//            for (int j = 0; j < 4; j++) {
-//                if (mesaActualizada[i][j].contains("AB")) {
-//                    this.mesa[i][j].setBackground(Color.RED);
-//                }
-//                if (mesaActualizada[i][j].contains("AC")) {
-//                    this.mesa[i][j].setBackground(Color.RED);
-//                }
-//
-//            }
-//        }
+    }
+    
+    public void actualizarFichas(String[] fichasActualizadas) {
+        ArrayList<String> fichasAMandar = new ArrayList<>();
+        for (String ficha : fichasActualizadas) {
+            fichasAMandar.add(ficha);
+        }
+        ventanaJuego.actualizarPilaDeFichas(fichasAMandar);
     }
     
     public int[] buscaIndice (JButton[][] mesaParaBuscar, JButton botonBuscado) {
@@ -344,7 +336,7 @@ public class VentanaCliente extends javax.swing.JFrame implements ActionListener
     public void gameAsGuest() {
         System.out.println(jugador.getNombreJugador());
         System.out.println("LLLLLLLLLL");
-        this.ventanaJuego = new Juego();
+        this.ventanaJuego = new Juego(this.jugador);
         ventanaJuego.setVisible(true);
         ventanaJuego.setCliente(this.jugador);
         ventanaJuego.setTitle(jugador.getNombreJugador());
