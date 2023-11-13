@@ -91,9 +91,23 @@ public class Partida {
 
     }
     
-    public void iniciar() {
+    public void iniciar() throws JsonProcessingException {
+        int id = 1;
+        for (threadServer jugador : jugadoresEnPartida) {
+            jugador.setStatusPlayer("En Partida");
+            jugador.sendUser();
+            jugador.setInGameID(id);
+            id++;
+
+        }
+        System.out.println("adsadasdasdasdasdasd");
+        System.out.println(this.size + this.turn);
+        this.turn = 1;
         
     }
+    
+    
+    
             
     
     
