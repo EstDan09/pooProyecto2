@@ -20,8 +20,8 @@ import javax.swing.JOptionPane;
  */
 public class Cliente {
    public static String IP_SERVER = "localhost"; //IP del Servidor
-   DataInputStream entrada = null; 
-   DataOutputStream salida = null;
+   public DataInputStream entrada = null; 
+   public DataOutputStream salida = null;
    
    Socket cliente = null;//para la comunicacion
    VentanaCliente ventanaJugador;
@@ -64,7 +64,7 @@ public class Cliente {
       // a la ventana gato puede colocar en la pantalla cualquier cosa, como las
       //imagenes de X o O, llamar a metodo marcar, colocar el nombre de enemigo
       // o el suyo propio
-      new threadCliente(entrada, cliente.getInputStream(), ventanaJugador).start();
+      new threadCliente(entrada, salida, ventanaJugador).start();
    }
    
    public String getNombreJugador()

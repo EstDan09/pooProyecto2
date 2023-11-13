@@ -5,9 +5,11 @@
 package Clientes;
 
 import Juego.DatosMesa;
+import Rummy.Juego;
 import java.io.DataInputStream;
 import java.io.IOException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
@@ -22,13 +24,21 @@ import javax.swing.JButton;
 public class threadCliente extends Thread {
     VentanaCliente ventadaDeCliente;
     DataInputStream entrada;
+    DataOutputStream salida;
     InputStream entradaRaw;
+    Juego juegoActivo;
     
-    public threadCliente(DataInputStream entrada, InputStream entradaRaw, VentanaCliente vcli) throws IOException {
+    public threadCliente(DataInputStream entrada, DataOutputStream salida, VentanaCliente vcli) throws IOException {
         this.entrada = entrada;
         this.ventadaDeCliente = vcli;
-        this.entradaRaw = entradaRaw;
+        this.salida = salida;
     }
+
+    public void setJuegoActivo(Juego juegoActivo) {
+        this.juegoActivo = juegoActivo;
+    }
+    
+    
     
     public void run() {
         //VARIABLES
@@ -57,7 +67,7 @@ public class threadCliente extends Thread {
                         ventadaDeCliente.mostrarMensajes(mensajeRecibido);
                         break;
                     
-                    case 3:
+                    case 3: //actualizar mesa
                         int row = entrada.readInt();
                         int col = entrada.readInt();
                         
@@ -71,7 +81,19 @@ public class threadCliente extends Thread {
                         
                         ventadaDeCliente.actualizaMesa(recibido);
                         break;
-           
+                    case 4: //actualizar 
+                        
+                        break;
+                    case 5: //meter a jugador a mi partida
+                        
+                        String jugadorWillingToJoin = this.entrada.readUTF();
+                        System.out.println("me llego que soy un pive"  + "y tengo que meter a " + jugadorWillingToJoin);
+                        this.salida.writeInt(6);
+                        this.salida.writeUTF(jugadorWillingToJoin);
+                        break;
+                    case 6:
+                        System.out.println("ABOUT TO COME");
+                        ventadaDeCliente.gameAsGuest();
                         
                         
                 }

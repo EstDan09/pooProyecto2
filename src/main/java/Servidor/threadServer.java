@@ -30,34 +30,60 @@ public class threadServer extends Thread {
     String nameUser; //Para el nombre del usuario de esta conexion
     Server servidor;// referencia al servidor
     int numeroDeJugador; //ID de jugador en el server global
+    int inGameID = 0;
+    String currentPartida = "";
+    String statusPlayer = "";
     ArrayList<threadServer> jugadoresEnLinea;
+    Partida partida = null;
 
     public threadServer(Socket clienteOwner, Server servidor, int num) {
         this.cliente = clienteOwner;
         this.servidor = servidor;
         this.numeroDeJugador = num;
-        jugadoresEnLinea = new ArrayList<>();
-        nameUser = "por mientras";
+        this.jugadoresEnLinea = new ArrayList<>();
+        this.nameUser = "por mientras";
+
     }
 
+    public String getStatusPlayer() {
+        return statusPlayer;
+    }
+
+    public void setStatusPlayer(String statusPlayer) {
+        this.statusPlayer = statusPlayer;
+    }
+
+    
     public String getNameUser() {
-        return nameUser;
+        return this.nameUser;
     }
 
     public void setNameUser(String name) {
-        nameUser = name;
+        this.nameUser = name;
     }
     
     public void refresherToJugadoresEnLinea (ArrayList<threadServer> jugadoresActualizados) {
-        jugadoresEnLinea = jugadoresActualizados;
+        this.jugadoresEnLinea = jugadoresActualizados;
         System.out.println("Jugador Agregado");
+    }
+    
+    public void setInGameID(int id) {
+        this.inGameID = id;
+    }
+    
+    public void setCurrentPartida(String partida) {
+        this.currentPartida = partida;
+    }
+    
+    public String getCurrentPartida() {
+        return this.currentPartida;
     }
 
     public void run() {
         try {
             // inicializa las comunicaciones
-            entrada = new DataInputStream(cliente.getInputStream());//comunic
-            salida = new DataOutputStream(cliente.getOutputStream());//comunic
+            this.entrada = new DataInputStream(cliente.getInputStream());//comunic
+            this.salida = new DataOutputStream(cliente.getOutputStream());//comunic
             this.setNameUser(entrada.readUTF());
             System.out.println("Hola soy una nueva conexión de nombre " + getNameUser());
 
@@ -72,15 +98,14 @@ public class threadServer extends Thread {
         while (true) {
             try {
                 //Siempre espera leer un int que será la instruccion por hacer
-                caso = entrada.readInt();
+                caso = this.entrada.readInt();
                 switch (caso) {
                     case 1:
-                        
                         break;
                     case 2:
                         System.out.println("step1");
                         //Recibo lo que un jugador me manda
-                        String mensajeRecibido = entrada.readUTF();
+                        String mensajeRecibido = this.entrada.readUTF();
                         
                         //Mando a todos el mensaje
                         for (threadServer jugador: jugadoresEnLinea) {
@@ -90,18 +115,15 @@ public class threadServer extends Thread {
                         break;
                     case 3:
                         System.out.println("ok");
-                        
-                        int row = entrada.readInt();
-                        int col = entrada.readInt();
+                        int row = this.entrada.readInt();
+                        int col = this.entrada.readInt();
                         String[][] recibido = new String[row][col];
-                        
                         for (int i = 0; i < row; i++) {
                             for (int j = 0; j < col; j++) {
-                                recibido[i][j] = entrada.readUTF();
+                                recibido[i][j] = this.entrada.readUTF();
                                 System.out.println(recibido[i][j]);
                             }
                         }
-                        
                         for (threadServer jugador : jugadoresEnLinea) {
                             jugador.salida.writeInt(3);
                             jugador.salida.writeInt(row);
@@ -112,20 +134,61 @@ public class threadServer extends Thread {
                                 }
                             }
                         }
-
                         break;
-
-                    case 4:
-                        
+                    case 4: //host crea
+                        System.out.println(jugadoresEnLinea.size());
+                        String playerCreating = this.entrada.readUTF();
+                        System.out.println("Voy a crear una partida para los jugadores presente");
+                        for (threadServer jugador : jugadoresEnLinea) {
+                            if( jugador.getNameUser().equals(playerCreating)) {
+                                this.partida = new Partida(jugador);             
+                            }
+                        }
                         break;
-                    case 5:
+                    case 5: //jugador se une
                         
+                        String userToJoin = this.entrada.readUTF();
+                        String jugadorWillingToJoin = this.entrada.readUTF();
+                        
+                        for (threadServer jugador : jugadoresEnLinea) {
+                            if (jugador.getNameUser().equals(userToJoin)) {
+                                jugador.salida.writeInt(5);
+                                jugador.salida.writeUTF(jugadorWillingToJoin);
+                            }
+                        }
                         break;
                     case 6:
+                        String jugadorAboutToJoin = this.entrada.readUTF();
+                        System.out.println("OYE " + getNameUser() + " " + jugadorAboutToJoin + " se va a meter");
                         
+                        for (threadServer jugador : jugadoresEnLinea) {
+                            if (jugador.getNameUser().equals(jugadorAboutToJoin)) {
+                                partida.addJugador(jugador);
+                            }
+                        }
                         break;
                     case 7:
-                        
+                        int rowC = this.entrada.readInt();
+                        int colC = this.entrada.readInt();
+                        String[][] recibidoC = new String[rowC][colC];
+                        for (int i = 0; i < rowC; i++) {
+                            for (int j = 0; j < colC; j++) {
+                                recibidoC[i][j] = this.entrada.readUTF();
+                                System.out.println(recibidoC[i][j]);
+                            }
+                        }
+                        if (partida != null) {
+                            for (threadServer jugador : partida.getJugadoresEnPartida()) {
+                                jugador.salida.writeInt(3);
+                                jugador.salida.writeInt(rowC);
+                                jugador.salida.writeInt(colC);
+                                for (String[] rows : recibidoC) {
+                                    for (String code : rows) {
+                                        jugador.salida.writeUTF(code);
+                                    }
+                                }
+                            }
+                        }
                         break;
                 }
             } catch (IOException e) {
@@ -138,10 +201,10 @@ public class threadServer extends Thread {
     
     public void sendUser() throws JsonProcessingException {
         
-        for (threadServer jugador: jugadoresEnLinea) {
+        for (threadServer jugador: this.jugadoresEnLinea) {
             ArrayList<String> listaParaEnviar = new ArrayList <>();
-            for (threadServer jugadorU: jugadoresEnLinea) {
-                listaParaEnviar.add(jugadorU.getNameUser());
+            for (threadServer jugadorU: this.jugadoresEnLinea) {
+                listaParaEnviar.add(jugadorU.getNameUser() + " " + jugadorU.getStatusPlayer());
             }
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(listaParaEnviar);
@@ -153,6 +216,10 @@ public class threadServer extends Thread {
                 e.printStackTrace();
             }
         }
+    }
+    
+    public void createGame() throws IOException {
+        this.salida.writeInt(6);
     }
 
 }

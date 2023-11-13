@@ -31,6 +31,8 @@ public class VentanaCliente extends javax.swing.JFrame implements ActionListener
     Color verdeOscuro = new Color(0, 128, 0);
     Cliente jugador;
     String[][] mesaInfo;
+    Juego ventanaJuego;
+    String mesaOwner;
     
     /**
      * Creates new form VentanaCliente
@@ -40,22 +42,8 @@ public class VentanaCliente extends javax.swing.JFrame implements ActionListener
             initComponents();
             jugador = new Cliente(this);
             jugador.conexion();
-            mesa = new JButton[4][4];
             mesaInfo = new String[4][4];
             pnlTest.setLayout(new GridLayout(4, 4));
-            for (int i = 0; i < 4; i++) {
-                for (int j = 0; j < 4; j++) {
-                    mesa[i][j] = new JButton();
-                    mesa[i][j].setPreferredSize(new Dimension(50, 50));
-                    mesa[i][j].setBackground(verdeOscuro);
-                    mesa[i][j].setActionCommand("Mesa" + i + "" + j); 
-                    mesa[i][j].addActionListener(this);
-                    pnlTest.add(mesa[i][j]); 
-                    
-                    mesaInfo[i][j] = "AA";
-                    
-                }
-            }
             
         }  catch (IOException ex) {
            
@@ -63,9 +51,6 @@ public class VentanaCliente extends javax.swing.JFrame implements ActionListener
         
     }
     
-    
-        
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -84,6 +69,8 @@ public class VentanaCliente extends javax.swing.JFrame implements ActionListener
         btnSendMsg = new javax.swing.JButton();
         pnlTest = new javax.swing.JPanel();
         btnJuego = new javax.swing.JButton();
+        txfJoinTag = new javax.swing.JTextField();
+        btnUnirme = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -120,10 +107,17 @@ public class VentanaCliente extends javax.swing.JFrame implements ActionListener
             .addGap(0, 100, Short.MAX_VALUE)
         );
 
-        btnJuego.setText("juego");
+        btnJuego.setText("Crear Mesa");
         btnJuego.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnJuegoActionPerformed(evt);
+            }
+        });
+
+        btnUnirme.setText("Unirme");
+        btnUnirme.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnUnirmeActionPerformed(evt);
             }
         });
 
@@ -133,26 +127,36 @@ public class VentanaCliente extends javax.swing.JFrame implements ActionListener
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(27, 27, 27)
-                                .addComponent(pnlTest, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(191, 191, 191)
-                                .addComponent(btnJuego)
-                                .addContainerGap())))
-                    .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addComponent(txfMsgText, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnSendMsg)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 109, Short.MAX_VALUE)
-                        .addComponent(btnInit)
-                        .addGap(40, 40, 40))))
+                        .addGap(40, 486, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(27, 27, 27)
+                                        .addComponent(pnlTest, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jScrollPane2))
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(txfJoinTag, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(btnUnirme)))
+                                .addContainerGap())
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(btnJuego)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(6, 6, 6)
+                                        .addComponent(btnInit)))
+                                .addGap(31, 31, 31))))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -160,21 +164,25 @@ public class VentanaCliente extends javax.swing.JFrame implements ActionListener
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 183, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 183, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 89, Short.MAX_VALUE)
-                                .addComponent(btnJuego)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addGap(0, 0, Short.MAX_VALUE)
                                 .addComponent(pnlTest, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(98, 98, 98)))
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(txfMsgText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btnSendMsg)
-                            .addComponent(btnInit))
-                        .addGap(17, 17, 17))
+                                .addGap(98, 98, 98)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(txfMsgText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(btnSendMsg))
+                                .addGap(17, 17, 17))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(txfJoinTag, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(btnUnirme))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnJuego)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnInit)
+                                .addGap(29, 29, 29))))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jScrollPane1)
                         .addGap(65, 65, 65))))
@@ -184,22 +192,21 @@ public class VentanaCliente extends javax.swing.JFrame implements ActionListener
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnInitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInitActionPerformed
-        try {
+        
+            
             // TODO add your handling code here:
-            jugador.salida.writeInt(3);
-            jugador.salida.writeInt(4);
-            jugador.salida.writeInt(4);
+            //jugador.salida.writeInt(3);
+            //jugador.salida.writeInt(4);
+            //jugador.salida.writeInt(4);
             
-            for (String[] row: mesaInfo) {
-                for (String code: row) {
-                    jugador.salida.writeUTF(code);
-                }
-            }
+            //for (String[] row: mesaInfo) {
+                //for (String code: row) {
+                    //jugador.salida.writeUTF(code);
+                //}
+            //}
            
             
-        } catch (IOException ex) {
-           
-        }
+        
         
     }//GEN-LAST:event_btnInitActionPerformed
 
@@ -225,9 +232,31 @@ public class VentanaCliente extends javax.swing.JFrame implements ActionListener
 
     private void btnJuegoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnJuegoActionPerformed
         // TODO add your handling code here:
-        Juego ventanaJuego = new Juego();
+        this.ventanaJuego = new Juego();
         ventanaJuego.setVisible(true);
+        ventanaJuego.setCliente(this.jugador);
+        ventanaJuego.setTitle(jugador.getNombreJugador());
+        try {
+            this.jugador.salida.writeInt(4);
+            this.jugador.salida.writeUTF(jugador.getNombreJugador());
+        } catch (IOException ex) {
+            Logger.getLogger(VentanaCliente.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_btnJuegoActionPerformed
+
+    private void btnUnirmeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUnirmeActionPerformed
+        // TODO add your handling code here:
+        String userToJoin = txfJoinTag.getText();
+        txfJoinTag.setText("");
+        try {
+            jugador.salida.writeInt(5);
+            jugador.salida.writeUTF(userToJoin);
+            jugador.salida.writeUTF(jugador.nombreJugador);
+        } catch (IOException ex) {
+            Logger.getLogger(VentanaCliente.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }//GEN-LAST:event_btnUnirmeActionPerformed
 
     /**
      * @param args the command line arguments
@@ -287,17 +316,18 @@ public class VentanaCliente extends javax.swing.JFrame implements ActionListener
     }
     
     public void actualizaMesa (String[][] mesaActualizada) {
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
-                if (mesaActualizada[i][j].contains("AB")) {
-                    this.mesa[i][j].setBackground(Color.RED);
-                }
-                if (mesaActualizada[i][j].contains("AC")) {
-                    this.mesa[i][j].setBackground(Color.RED);
-                }
-
-            }
-        }
+        ventanaJuego.actualizarMesaServer(mesaActualizada);
+//        for (int i = 0; i < 4; i++) {
+//            for (int j = 0; j < 4; j++) {
+//                if (mesaActualizada[i][j].contains("AB")) {
+//                    this.mesa[i][j].setBackground(Color.RED);
+//                }
+//                if (mesaActualizada[i][j].contains("AC")) {
+//                    this.mesa[i][j].setBackground(Color.RED);
+//                }
+//
+//            }
+//        }
     }
     
     public int[] buscaIndice (JButton[][] mesaParaBuscar, JButton botonBuscado) {
@@ -311,17 +341,27 @@ public class VentanaCliente extends javax.swing.JFrame implements ActionListener
         return null;
     }
     
+    public void gameAsGuest() {
+        System.out.println(jugador.getNombreJugador());
+        System.out.println("LLLLLLLLLL");
+        this.ventanaJuego = new Juego();
+        ventanaJuego.setVisible(true);
+        ventanaJuego.setCliente(this.jugador);
+        ventanaJuego.setTitle(jugador.getNombreJugador());
+    }
     
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnInit;
     private javax.swing.JButton btnJuego;
     private javax.swing.JButton btnSendMsg;
+    private javax.swing.JButton btnUnirme;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JPanel pnlTest;
     private javax.swing.JTextArea txaJugadores;
     private javax.swing.JTextArea txaMsgPanel;
+    private javax.swing.JTextField txfJoinTag;
     private javax.swing.JTextField txfMsgText;
     // End of variables declaration//GEN-END:variables
 }
